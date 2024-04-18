@@ -16,7 +16,9 @@ stampslidercolor=GREEN
 colorhueSlidercolor=GREEN
 listUndo = []
 fixstampbug=0
-trash=False
+#some variables to track whether an action is done (for undo)
+undoEnsure=False
+
 pi=image.load("Pics/pistamp.png")
 infinity=image.load("Pics/infinitysymbol.jpg")
 mring=image.load("Pics/mring.jpg")
@@ -251,14 +253,14 @@ while running:
             mouseup=True
             #if mouseup is detected, set variable to true, reset at end
 
-            if tool in listtools and canvasRect.collidepoint(mx,my) or trash==True:
+            if tool in listtools and canvasRect.collidepoint(mx,my) or undoEnsure==True:
                 #some logic for the undo redo features.
                 undoCapture = screen.subsurface(canvasRect).copy()
                 #if tool is selected, and user mouseups on screen, take a picture 
                 drawing_history.append(undoCapture) 
                 
                 redo_history.clear()
-                trash=False
+                undoEnsure=False
                 #if user draws, they can't redo 
 
     toolDescription="none"
@@ -392,8 +394,12 @@ while running:
                 image.save(screen.subsurface(canvasRect),fname)
         #load images
         if loadRect.collidepoint(mx,my):
+            
             fname=filedialog.askopenfilename()
             if fname != "":
+                undoEnsure=True
+                undoCapture = screen.subsurface(canvasRect).copy()
+                drawing_history.append(undoCapture) 
                 newimage=image.load(fname)
                 #makes sure image is not too big, transforms image to make sure it fits
                 if (newimage.get_width()) > 1200:
@@ -463,7 +469,7 @@ while running:
             drawing_history.append(undoCapture) 
             #clear redo history
             redo_history.clear()
-            trash=True
+            undoEnsure=True
             #fills screen with current color
             clearscreen(currentcolor)
 
